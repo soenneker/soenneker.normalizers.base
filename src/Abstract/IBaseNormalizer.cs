@@ -5,7 +5,7 @@
 /// </summary>
 /// <typeparam name="TInput">The input type to normalize from.</typeparam>
 /// <typeparam name="TOutput">The output type to normalize to.</typeparam>
-public interface IBaseNormalizer<in TInput, out TOutput> where TInput : notnull
+public interface IBaseNormalizer<in TInput, out TOutput>
 {
     /// <summary>
     /// Normalizes the input value into a consistent output format.

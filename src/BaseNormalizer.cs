@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Soenneker.Normalizers.Base;
 
 /// <inheritdoc cref="IBaseNormalizer{TInput, TOutput}"/>
-public abstract class BaseNormalizer<TInput, TOutput> : IBaseNormalizer<TInput, TOutput> where TInput : notnull
+public abstract class BaseNormalizer<TInput, TOutput> : IBaseNormalizer<TInput, TOutput>
 {
     private readonly ILogger? _logger;
 
