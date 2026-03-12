@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.Normalizers.Base.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Normalizers.Base\Soenneker.Normalizers.Base.csproj" />
     </ItemGroup>
 
     <ItemGroup>
