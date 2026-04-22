@@ -1,19 +1,18 @@
-﻿using Soenneker.Normalizers.Base.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Normalizers.Base.Abstract;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Normalizers.Base.Tests;
 
-[Collection("Collection")]
-public class BaseNormalizerTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class BaseNormalizerTests : HostedUnitTest
 {
 
-    public BaseNormalizerTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public BaseNormalizerTests(Host host) : base(host)
     {
 
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
