@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Soenneker.Normalizers.Base;
 
-/// <inheritdoc cref="IBaseNormalizer{TInput, TOutput}"/>
 public abstract class BaseNormalizer<TInput, TOutput> : IBaseNormalizer<TInput, TOutput>
 {
     private readonly ILogger? _logger;
@@ -23,6 +22,10 @@ public abstract class BaseNormalizer<TInput, TOutput> : IBaseNormalizer<TInput, 
         {
             return NormalizeCore(input);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             OnNormalizationFailed(input, ex);
@@ -38,7 +41,7 @@ public abstract class BaseNormalizer<TInput, TOutput> : IBaseNormalizer<TInput, 
     /// <param name="ex">The exception that was thrown during normalization.</param>
     protected virtual void OnNormalizationFailed(TInput input, Exception ex)
     {
-        _logger?.LogError(ex, "Normalization failed for input: {Input}", input);
+        _logger?.LogError(ex, "Normalization failed for input type {InputType}", typeof(TInput).FullName);
     }
 
     /// <summary>

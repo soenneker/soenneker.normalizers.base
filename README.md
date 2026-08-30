@@ -1,35 +1,45 @@
+# Soenneker.Normalizers.Base
 [![](https://img.shields.io/nuget/v/soenneker.normalizers.base.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.normalizers.base/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.normalizers.base/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.normalizers.base/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.normalizers.base.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.normalizers.base/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.normalizers.base/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.normalizers.base/actions/workflows/codeql.yml)
 
-# Soenneker.Normalizers.Base
+Defines a synchronous normalization contract and an optional base class that converts invalid input or normalization exceptions to `default`.
 
-Defines a contract for safe normalization of input data into a standard output format.
-
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Normalizers.Base
 ```
 
-## Quick start
+## Implement a normalizer
 
 ```csharp
-using Soenneker.Normalizers.Base.Abstract;
+using Microsoft.Extensions.Logging;
+using Soenneker.Normalizers.Base;
 
-IBaseNormalizer<TInput, TOutput> baseNormalizer = /* resolve from DI */;
-var result = baseNormalizer.Normalize(/* supply input */ default!);
+public sealed class TrimmedNameNormalizer : BaseNormalizer<string, string>
+{
+    public TrimmedNameNormalizer(ILogger<TrimmedNameNormalizer> logger) : base(logger)
+    {
+    }
+
+    protected override string NormalizeCore(string input)
+    {
+        string normalized = input.Trim();
+        return normalized.Length == 0
+            ? throw new FormatException("A name cannot be empty after trimming.")
+            : normalized;
+    }
+}
 ```
 
-Normalizes the input value into a consistent output format. Returns default if input is null or normalization fails.
+Calling `Normalize(null)` returns `default` without invoking `NormalizeCore`. Other exceptions are passed to `OnNormalizationFailed` and then converted to `default`; `OperationCanceledException` is propagated.
 
-## What you get
+The default failure handler logs the exception and input type, not the input value. Override it when different reporting is needed, but avoid writing identifiers, credentials, or personal data from `input` to logs.
 
-- `IBaseNormalizer<TInput, TOutput>` — Defines a contract for safe normalization of input data into a standard output format.
+## Result semantics
 
-## API at a glance
+There is no separate success flag. For reference outputs, `null` means the input was null, normalization rejected it, or normalization threw. For value-type outputs, `default` may be a valid value and cannot be distinguished from failure. Use a nullable or result-wrapper output type when that distinction matters.
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IBaseNormalizer<TInput, TOutput>.Normalize(input)` | Normalizes the input value into a consistent output format. Returns default if input is null or normalization fails. | The normalized output, or null/default if normalization fails. |
+The base class does not validate a normalized result, retry failures, or provide thread synchronization. A singleton normalizer must keep `NormalizeCore` and `OnNormalizationFailed` thread-safe.
